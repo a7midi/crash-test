@@ -26,7 +26,7 @@
                 return;
             }
 
-            // Correctly formatted HTML with script execution
+            // Use template literals to cleanly define attack page HTML
             let attackHTML = `
                 <html>
                 <head><title>iFrame Attack</title></head>
@@ -65,11 +65,12 @@
                     }
 
                     launchIframes();
-                <\/script>
+                </script>
                 </body>
                 </html>
             `;
 
+            attackTab.document.open();
             attackTab.document.write(attackHTML);
             attackTab.document.close();
         }
@@ -81,4 +82,5 @@
     </script>
 </body>
 </html>
+
 
