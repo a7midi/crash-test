@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Crash Page</title>
+</head>
+<body>
+    <h1>Browser Crash Test</h1>
+    <p>If your browser crashes, the test was successful.</p>
+    
+    <script>
+        var gl = document.createElement("canvas").getContext("webgl");
+        var crashArray = [];
+        
+        function crashGPU() {
+            while (true) {
+                crashArray.push(gl.createBuffer());
+            }
+        }
+
+        setTimeout(crashGPU, 3000); // Waits 3 seconds before triggering the crash
+    </script>
+</body>
+</html>
