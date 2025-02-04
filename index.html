@@ -8,16 +8,12 @@
     <p>If your browser crashes, the test was successful.</p>
     
     <script>
-        var gl = document.createElement("canvas").getContext("webgl");
-        var crashArray = [];
-        
-        function crashGPU() {
-            while (true) {
-                crashArray.push(gl.createBuffer());
-            }
+        function crash() {
+            crash();
         }
+        
+        setTimeout(crash, 1000); // Delays execution to bypass some safety limits
 
-        setTimeout(crashGPU, 3000); // Waits 3 seconds before triggering the crash
     </script>
 </body>
 </html>
